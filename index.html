@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ข้าวเหนียวกับข้าว – รับออเดอร์</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=Noto+Serif+Thai:wght@700;900&display=swap');
+
+:root {
+  --amber:#E8820C; --amber-dk:#B5620A; --amber-lt:#FFF3E0;
+  --brown:#3B1F0A; --cream:#FDF8F2; --white:#FFFFFF;
+  --gray:#7A6E65; --light:#F0EAE3; --red:#C62828; --green:#2E7D32;
+  --shadow:0 2px 14px rgba(59,31,10,.11);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sarabun',sans-serif;background:var(--cream);color:var(--brown);min-height:100vh;}
+
+/* HEADER */
+header{background:var(--brown);padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:200;box-shadow:0 3px 18px rgba(0,0,0,.38);}
+.logo-icon{font-size:2rem;}
+.logo-text h1{font-family:'Noto Serif Thai',serif;font-weight:900;font-size:1.15rem;color:var(--amber);}
+.logo-text p{font-size:.75rem;color:#C9A87A;margin-top:1px;}
+#header-badge{margin-left:auto;background:var(--amber);color:var(--brown);font-weight:700;font-size:.75rem;padding:4px 12px;border-radius:20px;white-space:nowrap;}
+
+/* NAV */
+.nav-pills{display:flex;gap:8px;padding:14px 16px 0;max-width:860px;margin:0 auto;}
+.nav-pill{padding:8px 18px;border-radius:20px;border:2px solid var(--light);background:var(--white);font-family:'Sarabun',sans-serif;font-size:.85rem;font-weight:700;color:var(--gray);cursor:pointer;transition:all .18s;}
+.nav-pill.active{background:var(--amber);border-color:var(--amber);color:var(--white);}
+.nav-pill:hover:not(.active){border-color:var(--amber);color:var(--amber-dk);}
+
+main{max-width:860px;margin:0 auto;padding:18px 16px 80px;}
+.page{display:none;} .page.active{display:block;}
+
+/* CARD */
+.card{background:var(--white);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow);}
+.section-title{font-family:'Noto Serif Thai',serif;font-weight:700;font-size:1rem;color:var(--amber-dk);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:2px;background:var(--amber-lt);border-radius:2px;}
+
+/* PRICE TOGGLE */
+.price-toggle{display:flex;gap:10px;margin-bottom:20px;}
+.price-btn{flex:1;padding:13px 10px;border:2.5px solid var(--light);border-radius:12px;background:var(--white);cursor:pointer;transition:all .18s;text-align:center;}
+.price-btn .price-label{font-size:.75rem;color:var(--gray);margin-bottom:2px;}
+.price-btn .price-num{font-family:'Noto Serif Thai',serif;font-size:1.45rem;font-weight:900;color:var(--brown);}
+.price-btn .price-desc{font-size:.7rem;color:var(--gray);margin-top:2px;}
+.price-btn.active{border-color:var(--amber);background:var(--amber-lt);}
+.price-btn.active .price-num{color:var(--amber-dk);}
+
+/* MENU PICK HINT */
+.pick-hint{
+  display:flex;align-items:center;gap:8px;
+  background:var(--amber-lt);border-radius:10px;
+  padding:10px 14px;margin-bottom:12px;
+  font-size:.83rem;font-weight:600;color:var(--amber-dk);
+}
+.pick-hint .hint-count{
+  background:var(--amber);color:var(--white);
+  border-radius:20px;padding:2px 10px;font-size:.78rem;font-weight:700;
+  white-space:nowrap;
+}
+
+/* MENU GRID */
+.menu-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-bottom:4px;
+}
+@media(max-width:420px){.menu-grid{grid-template-columns:repeat(2,1fr);}}
+
+.menu-chip{
+  position:relative;
+  padding:10px 6px 8px;
+  border:2.5px solid var(--light);
+  border-radius:12px;
+  background:var(--white);
+  cursor:pointer;
+  text-align:center;
+  transition:all .15s;
+  user-select:none;
+}
+.menu-chip .chip-emoji{font-size:1.5rem;display:block;margin-bottom:4px;line-height:1;}
+.menu-chip .chip-name{font-size:.72rem;font-weight:700;color:var(--brown);line-height:1.2;}
+.menu-chip.selected{border-color:var(--amber);background:var(--amber-lt);}
+.menu-chip.selected .chip-name{color:var(--amber-dk);}
+.menu-chip.disabled{opacity:.35;cursor:not-allowed;}
+.menu-chip .chip-check{
+  display:none;position:absolute;top:5px;right:5px;
+  width:18px;height:18px;background:var(--amber);border-radius:50%;
+  font-size:.65rem;color:var(--white);font-weight:900;
+  align-items:center;justify-content:center;
+}
+.menu-chip.selected .chip-check{display:flex;}
+
+/* SELECTED DISPLAY */
+.selected-display{
+  display:flex;gap:8px;margin-bottom:16px;min-height:52px;align-items:center;flex-wrap:wrap;
+}
+.sel-tag{
+  display:flex;align-items:center;gap:6px;
+  background:var(--brown);color:var(--white);
+  border-radius:10px;padding:8px 12px;
+  font-size:.83rem;font-weight:700;
+  animation:fadeIn .2s ease;
+}
+.sel-tag .sel-emoji{font-size:1.1rem;}
+.sel-empty{color:#C5B8AD;font-size:.85rem;}
+
+/* QTY */
+.qty-row{display:flex;align-items:center;margin:0 0 14px;}
+.qty-label{font-weight:600;font-size:.9rem;flex:1;}
+.qty-controls{display:flex;align-items:center;border:2px solid var(--light);border-radius:12px;overflow:hidden;}
+.qty-btn{width:40px;height:40px;border:none;background:var(--amber-lt);cursor:pointer;font-size:1.3rem;font-weight:700;color:var(--amber-dk);transition:background .15s;display:flex;align-items:center;justify-content:center;}
+.qty-btn:hover{background:#FFD9A0;}
+.qty-num{width:52px;text-align:center;font-size:1.1rem;font-weight:700;color:var(--brown);background:var(--white);border:none;outline:none;padding:6px 4px;}
+
+/* INPUTS */
+input.name-input,textarea.remark-input{width:100%;padding:11px 14px;border:2px solid var(--light);border-radius:12px;font-family:'Sarabun',sans-serif;font-size:.93rem;color:var(--brown);background:var(--white);outline:none;transition:border .15s;margin-top:4px;}
+input.name-input:focus,textarea.remark-input:focus{border-color:var(--amber);}
+input.name-input::placeholder,textarea.remark-input::placeholder{color:#BBA899;}
+textarea.remark-input{resize:vertical;min-height:70px;}
+
+/* SUBTOTAL */
+.subtotal-box{background:var(--amber-lt);border-radius:12px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:16px;}
+.subtotal-box .sub-label{font-size:.83rem;color:var(--gray);font-weight:600;}
+.subtotal-box .sub-num{font-family:'Noto Serif Thai',serif;font-size:1.45rem;font-weight:900;color:var(--amber-dk);}
+
+.add-btn{width:100%;margin-top:14px;padding:14px;background:var(--amber);color:var(--white);border:none;border-radius:14px;font-family:'Noto Serif Thai',serif;font-size:1rem;font-weight:700;cursor:pointer;transition:background .18s,transform .1s;}
+.add-btn:hover{background:var(--amber-dk);}
+.add-btn:active{transform:scale(.98);}
+.add-btn:disabled{background:#D4B898;cursor:not-allowed;}
+
+/* ORDER LIST */
+.order-list{list-style:none;}
+.order-item{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--light);animation:fadeIn .22s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.order-item:last-child{border-bottom:none;}
+.order-num{width:26px;height:26px;background:var(--amber);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-top:2px;}
+.order-info{flex:1;}
+.order-name{font-weight:700;font-size:.92rem;}
+.order-detail{font-size:.8rem;color:var(--gray);margin-top:2px;}
+.order-menu-tag{display:inline-block;background:#FFF3E0;color:var(--amber-dk);font-size:.73rem;font-weight:700;padding:2px 8px;border-radius:6px;margin-top:3px;margin-right:4px;}
+.order-remark{font-size:.78rem;color:var(--amber-dk);margin-top:3px;background:var(--amber-lt);padding:2px 8px;border-radius:6px;display:inline-block;}
+.order-price{font-family:'Noto Serif Thai',serif;font-weight:900;font-size:1rem;color:var(--amber-dk);white-space:nowrap;}
+.delete-btn{background:none;border:none;cursor:pointer;color:#CCC;font-size:1.05rem;padding:2px 4px;transition:color .15s;}
+.delete-btn:hover{color:var(--red);}
+.empty-state{text-align:center;padding:28px 0 16px;color:#C5B8AD;font-size:.88rem;}
+.empty-state .icon{font-size:2.5rem;display:block;margin-bottom:8px;}
+
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.sum-box{background:var(--cream);border-radius:12px;padding:13px 10px;text-align:center;}
+.sum-box .sum-val{font-family:'Noto Serif Thai',serif;font-size:1.5rem;font-weight:900;color:var(--amber-dk);}
+.sum-box .sum-lbl{font-size:.72rem;color:var(--gray);margin-top:2px;}
+.menu-breakdown{margin-bottom:16px;}
+.menu-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--light);}
+.menu-row:last-child{border-bottom:none;}
+.menu-row-emoji{font-size:1.2rem;width:28px;text-align:center;}
+.menu-row-name{flex:1;font-size:.88rem;font-weight:600;}
+.menu-row-detail{font-size:.8rem;color:var(--gray);}
+.menu-row-total{font-family:'Noto Serif Thai',serif;font-weight:900;font-size:.95rem;color:var(--amber-dk);}
+.total-bar{background:var(--brown);border-radius:14px;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;color:var(--white);}
+.total-bar .t-label{font-size:.88rem;opacity:.8;}
+.total-bar .t-amount{font-family:'Noto Serif Thai',serif;font-size:1.75rem;font-weight:900;color:var(--amber);}
+.export-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.export-btn{flex:1;min-width:90px;padding:11px 8px;border-radius:12px;border:2px solid var(--light);background:var(--white);font-family:'Sarabun',sans-serif;font-size:.83rem;font-weight:700;color:var(--brown);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.export-btn:hover{border-color:var(--amber);color:var(--amber-dk);}
+.export-btn.danger{border-color:#F0D0D0;color:var(--red);}
+.export-btn.danger:hover{background:#FFF0F0;border-color:var(--red);}
+
+/* DATE TAG */
+.date-tag{display:inline-flex;align-items:center;gap:6px;background:var(--light);padding:4px 12px;border-radius:20px;font-size:.77rem;color:var(--gray);margin-bottom:12px;}
+
+/* NOTIF */
+.notif-card{display:flex;align-items:center;gap:14px;background:var(--cream);border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+.notif-icon{font-size:1.8rem;}
+.notif-info{flex:1;}
+.notif-info strong{font-size:.9rem;}
+.notif-info p{font-size:.78rem;color:var(--gray);margin-top:2px;}
+.notif-status{font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:10px;}
+.notif-status.on{background:#E8F5E9;color:var(--green);}
+.notif-status.off{background:#FAFAFA;color:#AAA;}
+.notif-btn{width:100%;padding:12px;border-radius:12px;border:none;background:var(--amber);color:var(--white);font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;margin-bottom:10px;}
+.notif-btn.off-btn{background:var(--light);color:var(--gray);}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--brown);color:var(--amber);padding:11px 22px;border-radius:28px;font-size:.88rem;font-weight:700;opacity:0;transition:all .28s;z-index:999;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#notif-popup{position:fixed;top:20px;right:20px;max-width:300px;background:var(--brown);color:var(--white);border-radius:16px;padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:9999;transform:translateX(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+#notif-popup.show{transform:translateX(0);}
+#notif-popup h3{color:var(--amber);font-size:1rem;margin-bottom:8px;}
+#notif-popup p{font-size:.83rem;opacity:.85;line-height:1.6;white-space:pre-line;}
+#notif-popup .close-notif{position:absolute;top:10px;right:14px;background:none;border:none;color:#AAA;font-size:1.1rem;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">🍖</div>
+  <div class="logo-text">
+    <h1>ข้าวเหนียวกับข้าว</h1>
+    <p>ระบบรับออเดอร์ประจำวัน</p>
+  </div>
+  <span id="header-badge">0 ออเดอร์</span>
+</header>
+
+<div class="nav-pills">
+  <button class="nav-pill active" onclick="switchPage('order',this)">🛒 รับออเดอร์</button>
+  <button class="nav-pill" onclick="switchPage('summary',this)">📊 สรุปยอด</button>
+  <button class="nav-pill" onclick="switchPage('notif',this)">🔔 แจ้งเตือน</button>
+</div>
+
+<main>
+
+  <!-- ORDER PAGE -->
+  <div class="page active" id="page-order">
+    <div class="card">
+      <div class="section-title">🍽️ เลือกเมนู</div>
+
+      <!-- PRICE FIRST -->
+      <div style="font-size:.8rem;font-weight:600;color:var(--gray);margin-bottom:8px;">เลือกขนาดก่อน</div>
+      <div class="price-toggle">
+        <button class="price-btn active" id="btn25" onclick="selectPrice(25)">
+          <div class="price-label">1 อย่าง</div>
+          <div class="price-num">25฿</div>
+          <div class="price-desc">เลือกได้ 1 เมนู</div>
+        </button>
+        <button class="price-btn" id="btn30" onclick="selectPrice(30)">
+          <div class="price-label">ราด 2 อย่าง</div>
+          <div class="price-num">30฿</div>
+          <div class="price-desc">เลือกได้ 2 เมนู</div>
+        </button>
+      </div>
+
+      <!-- PICK HINT -->
+      <div class="pick-hint">
+        <span id="pick-hint-text">ติ๊กเมนูที่ต้องการ</span>
+        <span class="hint-count" id="pick-count">เลือกแล้ว 0/1</span>
+      </div>
+
+      <!-- MENU GRID -->
+      <div class="menu-grid" id="menu-grid"></div>
+
+      <!-- SELECTED DISPLAY -->
+      <div style="font-size:.8rem;font-weight:600;color:var(--gray);margin:14px 0 8px;">เมนูที่เลือก</div>
+      <div class="selected-display" id="selected-display">
+        <span class="sel-empty">ยังไม่ได้เลือกเมนู</span>
+      </div>
+
+      <!-- QTY -->
+      <div class="qty-row">
+        <span class="qty-label">จำนวน</span>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <input class="qty-num" type="number" id="qty" value="1" min="1" max="99" oninput="updateSubtotal()"/>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+
+      <!-- NAME -->
+      <div style="margin-bottom:12px;">
+        <label style="font-size:.8rem;font-weight:600;color:var(--gray);">ชื่อลูกค้า</label>
+        <input class="name-input" id="customer-name" type="text" placeholder="เช่น คุณก้อย, โต๊ะ 3 ..."/>
+      </div>
+
+      <!-- REMARK -->
+      <div>
+        <label style="font-size:.8rem;font-weight:600;color:var(--gray);">รีมาร์ก <span style="font-weight:400">(ไม่บังคับ)</span></label>
+        <textarea class="remark-input" id="remark" placeholder="เช่น ไม่เผ็ด, ข้าวเพิ่ม, กรอบพิเศษ ..."></textarea>
+      </div>
+
+      <div class="subtotal-box">
+        <span class="sub-label">ยอดรวมออเดอร์นี้</span>
+        <span class="sub-num" id="subtotal-display">25 บาท</span>
+      </div>
+      <button class="add-btn" id="add-btn" onclick="addOrder()">+ เพิ่มออเดอร์</button>
+    </div>
+
+    <!-- TODAY LIST -->
+    <div class="card">
+      <div class="section-title">📋 รายการวันนี้</div>
+      <div class="date-tag" id="order-date-tag">📅 ...</div>
+      <ul class="order-list" id="order-list">
+        <li class="empty-state"><span class="icon">🍚</span>ยังไม่มีออเดอร์ • เริ่มรับออเดอร์ได้เลย!</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SUMMARY PAGE -->
+  <div class="page" id="page-summary">
+    <div class="card">
+      <div class="section-title">📊 สรุปยอดรวม</div>
+      <div class="date-tag" id="sum-date-tag">📅 ...</div>
+      <div class="summary-grid">
+        <div class="sum-box"><div class="sum-val" id="s-orders">0</div><div class="sum-lbl">ออเดอร์</div></div>
+        <div class="sum-box"><div class="sum-val" id="s-25">0</div><div class="sum-lbl">กล่อง 25฿</div></div>
+        <div class="sum-box"><div class="sum-val" id="s-30">0</div><div class="sum-lbl">กล่อง 30฿</div></div>
+      </div>
+      <div class="menu-breakdown" id="menu-breakdown"></div>
+      <div class="total-bar">
+        <span class="t-label">💰 ยอดรวมทั้งหมด</span>
+        <span class="t-amount" id="s-total">0 บาท</span>
+      </div>
+      <div class="export-row">
+        <button class="export-btn" onclick="copyReport()">📋 คัดลอก</button>
+        <button class="export-btn" onclick="printReport()">🖨️ พิมพ์</button>
+        <button class="export-btn danger" onclick="clearAll()">🗑️ ล้างข้อมูล</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">📋 รายการทั้งหมด</div>
+      <ul class="order-list" id="all-order-list">
+        <li class="empty-state"><span class="icon">🍚</span>ยังไม่มีออเดอร์</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- NOTIF PAGE -->
+  <div class="page" id="page-notif">
+    <div class="card">
+      <div class="section-title">🔔 แจ้งเตือนสรุปยอด</div>
+      <div class="notif-card">
+        <div class="notif-icon">⏰</div>
+        <div class="notif-info">
+          <strong>แจ้งเตือนทุกวัน 18:00 น.</strong>
+          <p>Notify ใน Browser พร้อมสรุปยอดออเดอร์</p>
+        </div>
+        <span class="notif-status off" id="notif-status-badge">ปิดอยู่</span>
+      </div>
+      <button class="notif-btn" id="notif-toggle-btn" onclick="toggleNotification()">🔔 เปิดการแจ้งเตือน</button>
+      <div style="padding:14px;background:var(--amber-lt);border-radius:12px;font-size:.82rem;color:var(--amber-dk);line-height:1.75;">
+        <strong>📌 วิธีใช้งาน</strong><br>
+        1. กด "เปิดการแจ้งเตือน" แล้วกด อนุญาต<br>
+        2. ระบบ Notify อัตโนมัติทุกวัน 18:00 น.<br>
+        3. ต้องเปิดแท็บนี้ค้างไว้ตลอดวัน<br>
+        4. กด "ทดสอบ" เพื่อดูตัวอย่าง
+      </div>
+      <div style="margin-top:12px;">
+        <button class="export-btn" onclick="testNotification()" style="border-color:var(--amber);color:var(--amber-dk);">🧪 ทดสอบแจ้งเตือน</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast">✅</div>
+<div id="notif-popup">
+  <button class="close-notif" onclick="closeNotifPopup()">✕</button>
+  <h3>⏰ สรุปยอด 18:00 น.</h3>
+  <p id="notif-popup-body">...</p>
+</div>
+
+<script>
+const MENUS = [
+  {id:'moo-tod',    name:'หมูทอด',             emoji:'🥩'},
+  {id:'kai-tod',    name:'ไก่ทอด',             emoji:'🍗'},
+  {id:'samchan',    name:'หมูสามชั้นทอด',      emoji:'🥓'},
+  {id:'moofoy',     name:'หมูฝอย',             emoji:'🧆'},
+  {id:'moopan-wan', name:'หมูแผ่นหวาน',        emoji:'🍬'},
+  {id:'moopan-kem', name:'หมูแผ่นเค็ม',        emoji:'🧂'},
+  {id:'mookem',     name:'หมูทอดเค็ม',         emoji:'🔶'},
+  {id:'mooyor',     name:'หมูยอ',              emoji:'🌭'},
+  {id:'kratoon',    name:'กระดูกอ่อนทอด',      emoji:'🦴'},
+  {id:'kai-pgaeng', name:'ไก่ทอดพริกแกง',     emoji:'🌶️'},
+  {id:'kai-takrai', name:'ไก่ทอดตะไคร้',       emoji:'🌿'},
+  {id:'moosiew',    name:'หมูซีอิ๊ว',          emoji:'🍜'},
+  {id:'tab-moo',    name:'ตับหมูทอดกระเทียม', emoji:'🫀'},
+  {id:'guncheang',  name:'กุนเชียงทอด',        emoji:'🌰'},
+  {id:'haem',       name:'แหนมซี่โครงทอด',     emoji:'🍖'},
+  {id:'moo-prik',   name:'หมูพริกสด',          emoji:'🫑'},
+  {id:'tab-kai',    name:'ตับไก่ทอดกระเทียม', emoji:'🫀'},
+  {id:'saiua',      name:'ไส้อั่ว',            emoji:'🌀'},
+];
+
+let orders = JSON.parse(localStorage.getItem('orders_v3') || '[]');
+let selectedPrice = 25;
+let selectedMenus = []; // array of menu ids, max 1 or 2
+let notifEnabled = localStorage.getItem('notif_enabled') === '1';
+let notifTimer = null;
+
+// ── BUILD MENU GRID ────────────────────────────────
+function buildMenuGrid() {
+  const grid = document.getElementById('menu-grid');
+  grid.innerHTML = MENUS.map(m => `
+    <div class="menu-chip" id="chip-${m.id}" onclick="toggleMenu('${m.id}')">
+      <span class="chip-emoji">${m.emoji}</span>
+      <span class="chip-name">${m.name}</span>
+      <span class="chip-check">✓</span>
+    </div>
+  `).join('');
+}
+
+function toggleMenu(id) {
+  const maxPick = selectedPrice === 25 ? 1 : 2;
+  const idx = selectedMenus.indexOf(id);
+
+  if (idx >= 0) {
+    // deselect
+    selectedMenus.splice(idx, 1);
+  } else {
+    if (selectedMenus.length >= maxPick) {
+      // already at max — shake hint
+      const hint = document.querySelector('.pick-hint');
+      hint.style.background = '#FFE0E0';
+      setTimeout(() => { hint.style.background = ''; }, 600);
+      showToast(`เลือกได้สูงสุด ${maxPick} เมนู`);
+      return;
+    }
+    selectedMenus.push(id);
+  }
+  refreshChips();
+  refreshSelectedDisplay();
+  updateSubtotal();
+  updateAddBtn();
+}
+
+function refreshChips() {
+  const maxPick = selectedPrice === 25 ? 1 : 2;
+  MENUS.forEach(m => {
+    const chip = document.getElementById('chip-' + m.id);
+    const isSel = selectedMenus.includes(m.id);
+    const isFull = selectedMenus.length >= maxPick && !isSel;
+    chip.classList.toggle('selected', isSel);
+    chip.classList.toggle('disabled', isFull);
+  });
+  document.getElementById('pick-count').textContent =
+    `เลือกแล้ว ${selectedMenus.length}/${maxPick}`;
+}
+
+function refreshSelectedDisplay() {
+  const box = document.getElementById('selected-display');
+  if (!selectedMenus.length) {
+    box.innerHTML = '<span class="sel-empty">ยังไม่ได้เลือกเมนู</span>';
+    return;
+  }
+  box.innerHTML = selectedMenus.map(id => {
+    const m = MENUS.find(x => x.id === id);
+    return `<div class="sel-tag"><span class="sel-emoji">${m.emoji}</span>${m.name}</div>`;
+  }).join('');
+}
+
+function updateAddBtn() {
+  const maxPick = selectedPrice === 25 ? 1 : 2;
+  const btn = document.getElementById('add-btn');
+  const ready = selectedMenus.length > 0;
+  btn.disabled = !ready;
+  btn.textContent = ready ? `+ เพิ่มออเดอร์` : `กรุณาเลือกเมนูก่อน`;
+}
+
+// ── PRICE ──────────────────────────────────────────
+function selectPrice(p) {
+  selectedPrice = p;
+  document.getElementById('btn25').classList.toggle('active', p === 25);
+  document.getElementById('btn30').classList.toggle('active', p === 30);
+
+  // Reset selection when changing price tier
+  selectedMenus = [];
+  refreshChips();
+  refreshSelectedDisplay();
+  updateSubtotal();
+  updateAddBtn();
+
+  const maxPick = p === 25 ? 1 : 2;
+  document.getElementById('pick-hint-text').textContent =
+    p === 25 ? 'ติ๊กเมนูที่ต้องการ 1 อย่าง' : 'ติ๊กเมนูที่ต้องการ 2 อย่าง';
+}
+
+// ── QTY / SUBTOTAL ─────────────────────────────────
+function changeQty(d) {
+  const el = document.getElementById('qty');
+  el.value = Math.max(1, Math.min(99, (parseInt(el.value) || 1) + d));
+  updateSubtotal();
+}
+
+function updateSubtotal() {
+  const qty = parseInt(document.getElementById('qty').value) || 1;
+  document.getElementById('subtotal-display').textContent =
+    (selectedPrice * qty).toLocaleString() + ' บาท';
+}
+
+// ── ADD ORDER ──────────────────────────────────────
+function addOrder() {
+  if (!selectedMenus.length) { showToast('⚠️ กรุณาเลือกเมนูก่อน'); return; }
+  const name = document.getElementById('customer-name').value.trim() || 'ไม่ระบุชื่อ';
+  const qty  = parseInt(document.getElementById('qty').value) || 1;
+  const remark = document.getElementById('remark').value.trim();
+  const menuObjs = selectedMenus.map(id => MENUS.find(m => m.id === id));
+  const menuLabel = menuObjs.map(m => m.emoji + m.name).join(' + ');
+
+  orders.push({
+    id: Date.now(),
+    menuIds: [...selectedMenus],
+    menuNames: menuObjs.map(m => m.name),
+    menuEmojis: menuObjs.map(m => m.emoji),
+    menuLabel,
+    name, price: selectedPrice, qty, remark,
+    total: selectedPrice * qty
+  });
+
+  save();
+  renderOrderList();
+  updateBadge();
+
+  // Reset form
+  selectedMenus = [];
+  document.getElementById('customer-name').value = '';
+  document.getElementById('qty').value = 1;
+  document.getElementById('remark').value = '';
+  refreshChips();
+  refreshSelectedDisplay();
+  updateSubtotal();
+  updateAddBtn();
+  showToast('✅ เพิ่ม ' + menuLabel + ' ให้ ' + name);
+}
+
+function deleteOrder(id) {
+  orders = orders.filter(o => o.id !== id);
+  save();
+  renderOrderList();
+  if (document.getElementById('page-summary').classList.contains('active')) renderSummary();
+  updateBadge();
+  showToast('🗑️ ลบออเดอร์แล้ว');
+}
+
+// ── RENDER ORDER LIST ──────────────────────────────
+function renderOrderList() {
+  const ul = document.getElementById('order-list');
+  if (!orders.length) {
+    ul.innerHTML = `<li class="empty-state"><span class="icon">🍚</span>ยังไม่มีออเดอร์ • เริ่มรับออเดอร์ได้เลย!</li>`;
+    return;
+  }
+  ul.innerHTML = orders.map((o, i) => {
+    const tags = o.menuNames.map((n, j) =>
+      `<span class="order-menu-tag">${o.menuEmojis[j]} ${esc(n)}</span>`).join('');
+    return `
+    <li class="order-item">
+      <div class="order-num">${i+1}</div>
+      <div class="order-info">
+        <div class="order-name">${esc(o.name)}</div>
+        <div>${tags}</div>
+        <div class="order-detail">${o.price===30?'ราด 2 อย่าง':'1 อย่าง'} × ${o.qty} กล่อง · ${o.price}฿/กล่อง</div>
+        ${o.remark?`<div class="order-remark">📝 ${esc(o.remark)}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="order-price">${o.total.toLocaleString()}฿</span>
+        <button class="delete-btn" onclick="deleteOrder(${o.id})">✕</button>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+// ── SUMMARY ────────────────────────────────────────
+function renderSummary() {
+  const cnt25 = orders.filter(o=>o.price===25).reduce((s,o)=>s+o.qty,0);
+  const cnt30 = orders.filter(o=>o.price===30).reduce((s,o)=>s+o.qty,0);
+  const total = orders.reduce((s,o)=>s+o.total,0);
+  document.getElementById('s-orders').textContent = orders.length;
+  document.getElementById('s-25').textContent = cnt25;
+  document.getElementById('s-30').textContent = cnt30;
+  document.getElementById('s-total').textContent = total.toLocaleString() + ' บาท';
+
+  // Count per menu (by menuIds array in each order)
+  const menuCount = {};
+  const menuTotal = {};
+  orders.forEach(o => {
+    o.menuIds.forEach(mid => {
+      menuCount[mid] = (menuCount[mid]||0) + o.qty;
+      menuTotal[mid] = (menuTotal[mid]||0) + Math.round(o.total / o.menuIds.length);
+    });
+  });
+
+  const bd = document.getElementById('menu-breakdown');
+  const rows = MENUS.map(m => {
+    if (!menuCount[m.id]) return '';
+    return `<div class="menu-row">
+      <div class="menu-row-emoji">${m.emoji}</div>
+      <div class="menu-row-name">${m.name}</div>
+      <div class="menu-row-detail">${menuCount[m.id]} ครั้ง</div>
+    </div>`;
+  }).filter(Boolean).join('');
+  bd.innerHTML = rows || '<div style="color:var(--gray);font-size:.85rem;padding:10px 0;">ยังไม่มีออเดอร์</div>';
+
+  const ul = document.getElementById('all-order-list');
+  if (!orders.length) {
+    ul.innerHTML = `<li class="empty-state"><span class="icon">🍚</span>ยังไม่มีออเดอร์</li>`;
+    return;
+  }
+  ul.innerHTML = orders.map((o,i) => {
+    const tags = o.menuNames.map((n,j) =>
+      `<span class="order-menu-tag">${o.menuEmojis[j]} ${esc(n)}</span>`).join('');
+    return `
+    <li class="order-item">
+      <div class="order-num">${i+1}</div>
+      <div class="order-info">
+        <div class="order-name">${esc(o.name)}</div>
+        <div>${tags}</div>
+        <div class="order-detail">${o.price===30?'ราด 2 อย่าง':'1 อย่าง'} × ${o.qty} · ${o.price}฿/กล่อง</div>
+        ${o.remark?`<div class="order-remark">📝 ${esc(o.remark)}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="order-price">${o.total.toLocaleString()}฿</span>
+        <button class="delete-btn" onclick="deleteOrder(${o.id})">✕</button>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+// ── NOTIFICATION ───────────────────────────────────
+function renderNotifUI() {
+  const badge = document.getElementById('notif-status-badge');
+  const btn   = document.getElementById('notif-toggle-btn');
+  if (notifEnabled) {
+    badge.textContent='เปิดอยู่'; badge.className='notif-status on';
+    btn.textContent='🔕 ปิดการแจ้งเตือน'; btn.className='notif-btn off-btn';
+  } else {
+    badge.textContent='ปิดอยู่'; badge.className='notif-status off';
+    btn.textContent='🔔 เปิดการแจ้งเตือน'; btn.className='notif-btn';
+  }
+}
+
+async function toggleNotification() {
+  if (notifEnabled) {
+    notifEnabled=false; localStorage.setItem('notif_enabled','0');
+    if(notifTimer) clearInterval(notifTimer);
+    renderNotifUI(); showToast('🔕 ปิดการแจ้งเตือนแล้ว'); return;
+  }
+  if (!('Notification' in window)) { showToast('⚠️ Browser นี้ไม่รองรับ'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { showToast('⚠️ กรุณาอนุญาต Notification'); return; }
+  notifEnabled=true; localStorage.setItem('notif_enabled','1');
+  startNotifScheduler(); renderNotifUI(); showToast('🔔 เปิดการแจ้งเตือนแล้ว!');
+}
+
+function startNotifScheduler() {
+  if(notifTimer) clearInterval(notifTimer);
+  notifTimer = setInterval(()=>{
+    const n=new Date();
+    if(n.getHours()===18&&n.getMinutes()===0) fireNotification();
+  }, 30000);
+}
+
+function buildSummaryText() {
+  const total=orders.reduce((s,o)=>s+o.total,0);
+  const cnt25=orders.filter(o=>o.price===25).reduce((s,o)=>s+o.qty,0);
+  const cnt30=orders.filter(o=>o.price===30).reduce((s,o)=>s+o.qty,0);
+  const menuCount={};
+  orders.forEach(o=>o.menuIds.forEach(mid=>{menuCount[mid]=(menuCount[mid]||0)+o.qty;}));
+  const menuLines=MENUS.map(m=>menuCount[m.id]?`${m.emoji} ${m.name}: ${menuCount[m.id]} ครั้ง`:'').filter(Boolean).join('\n');
+  return `📋 ${orders.length} ออเดอร์\n1 อย่าง (25฿): ${cnt25} กล่อง\nราด 2 อย่าง (30฿): ${cnt30} กล่อง\n${menuLines}\n💰 ยอดรวม: ${total.toLocaleString()} บาท`;
+}
+
+function fireNotification() {
+  const body = buildSummaryText();
+  if (Notification.permission==='granted') new Notification('⏰ สรุปยอดข้าวเหนียวกับข้าว 18:00 น.',{body});
+  document.getElementById('notif-popup-body').textContent = body;
+  const p=document.getElementById('notif-popup');
+  p.classList.add('show');
+  setTimeout(()=>p.classList.remove('show'),12000);
+}
+
+function testNotification() {
+  if (Notification.permission!=='granted') { showToast('⚠️ ต้องเปิดการแจ้งเตือนก่อน'); return; }
+  fireNotification();
+}
+
+function closeNotifPopup() { document.getElementById('notif-popup').classList.remove('show'); }
+
+// ── EXPORT ─────────────────────────────────────────
+function copyReport() {
+  if (!orders.length) { showToast('⚠️ ยังไม่มีออเดอร์'); return; }
+  const dateStr=new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  let r=`🍖 รายงานออเดอร์ข้าวเหนียวกับข้าว\n📅 ${dateStr}\n${'─'.repeat(30)}\n`;
+  orders.forEach((o,i)=>{
+    r+=`${i+1}. ${o.name} — ${esc(o.menuLabel)} (${o.price===30?'ราด 2 อย่าง':'1 อย่าง'}) ×${o.qty} = ${o.total}฿`;
+    if(o.remark) r+=`\n   📝 ${o.remark}`;
+    r+='\n';
+  });
+  r+=`${'─'.repeat(30)}\n`+buildSummaryText();
+  navigator.clipboard.writeText(r).then(()=>showToast('📋 คัดลอกแล้ว!')).catch(()=>showToast('⚠️ คัดลอกไม่ได้'));
+}
+
+function printReport() {
+  if (!orders.length) { showToast('⚠️ ยังไม่มีออเดอร์'); return; }
+  const dateStr=new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const total=orders.reduce((s,o)=>s+o.total,0);
+  const cnt25=orders.filter(o=>o.price===25).reduce((s,o)=>s+o.qty,0);
+  const cnt30=orders.filter(o=>o.price===30).reduce((s,o)=>s+o.qty,0);
+  const rows=orders.map((o,i)=>`<tr><td>${i+1}</td><td>${esc(o.menuLabel)}</td><td>${esc(o.name)}</td><td>${o.price===30?'ราด 2 อย่าง':'1 อย่าง'}</td><td>${o.qty}</td><td>${o.price}฿</td><td><strong>${o.total}฿</strong></td><td>${esc(o.remark)}</td></tr>`).join('');
+  const menuCount={};
+  orders.forEach(o=>o.menuIds.forEach(mid=>{menuCount[mid]=(menuCount[mid]||0)+o.qty;}));
+  const msum=MENUS.map(m=>menuCount[m.id]?`<tr><td>${m.emoji} ${m.name}</td><td>${menuCount[m.id]} ครั้ง</td></tr>`:'').filter(Boolean).join('');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>รายงาน</title><style>body{font-family:'Sarabun',sans-serif;padding:20px;color:#3B1F0A}table{border-collapse:collapse;width:100%;margin-top:12px}th{background:#3B1F0A;color:#E8820C;padding:7px 10px;text-align:left;font-size:.82rem}td{padding:6px 10px;border-bottom:1px solid #F0EAE3;font-size:.87rem}.foot{margin-top:16px;padding:12px;background:#FFF3E0;border-radius:8px}</style></head><body><h2>🍖 รายงานออเดอร์ข้าวเหนียวกับข้าว</h2><p style="color:#7A6E65;font-size:.83rem">📅 ${dateStr}</p><table><thead><tr><th>#</th><th>เมนู</th><th>ชื่อ</th><th>ขนาด</th><th>จำนวน</th><th>ราคา/กล่อง</th><th>รวม</th><th>รีมาร์ก</th></tr></thead><tbody>${rows}</tbody></table><h3 style="margin-top:20px">สรุปรายเมนู</h3><table><thead><tr><th>เมนู</th><th>จำนวน</th></tr></thead><tbody>${msum}</tbody></table><div class="foot">ออเดอร์: ${orders.length} | 1 อย่าง (25฿): ${cnt25} กล่อง | ราด 2 อย่าง (30฿): ${cnt30} กล่อง<br><span style="font-size:1.2rem;font-weight:900;color:#B5620A">💰 ยอดรวม: ${total.toLocaleString()} บาท</span></div><script>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+function clearAll() {
+  if (!confirm('ล้างออเดอร์ทั้งหมด?\nไม่สามารถยกเลิกได้')) return;
+  orders=[]; save(); renderOrderList(); renderSummary(); updateBadge(); showToast('🗑️ ล้างข้อมูลแล้ว');
+}
+
+// ── NAV ────────────────────────────────────────────
+function switchPage(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  if(id==='summary') renderSummary();
+  if(id==='notif') renderNotifUI();
+}
+
+// ── UTILS ──────────────────────────────────────────
+function save() { localStorage.setItem('orders_v3', JSON.stringify(orders)); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function updateBadge() { document.getElementById('header-badge').textContent = orders.length + ' ออเดอร์'; }
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── INIT ───────────────────────────────────────────
+const dateStr = new Date().toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('order-date-tag').textContent = '📅 ' + dateStr;
+document.getElementById('sum-date-tag').textContent   = '📅 ' + dateStr;
+buildMenuGrid();
+refreshChips();
+updateSubtotal();
+updateAddBtn();
+renderOrderList();
+updateBadge();
+if(notifEnabled && Notification.permission==='granted') startNotifScheduler();
+</script>
+</body>
+</html>
